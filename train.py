@@ -61,7 +61,7 @@ dataset = dataset.map(formatting_prompts_func, batched=True)
 # ============================
 # Fine-tune params
 # ============================
-learn_rate = 5e-5
+learn_rate = 6e-5
 max_epochs = 10
 warmup_steps = 5
 per_device_train_batch_size = 2
@@ -106,12 +106,12 @@ trainer = SFTTrainer(
 )
 
 trainer.train()
-
-# to resume from the laste checkpoint saved, use:
 # trainer.train(resume_from_checkpoint=True)
-
-# to resume from a specific checkpoint, use:
 # trainer.train(resume_from_checkpoint="outputs/checkpoint-1500")
+
+# to resume from the laste checkpoint saved, use resume_from_checkpoint=True
+# to resume from a specific checkpoint, use:
+
 
 
 # === Save merged model ===
@@ -151,11 +151,12 @@ try:
     # "Q8_0"    # 8-bit quantization, almost no loss in quality, largest size
 
     # === Quantize to both Q8_0 and Q4_K_M ===
-    quant_types = ["Q8_0", "Q4_K_M"]
+    # quant_types = ["Q8_0", "Q4_K_M"]
+    quant_types = ["Q8_0"]
     quant_bin = os.path.join(llama_cpp_path, "build/bin/llama-quantize")
     
     for quant_type in quant_types:
-        quant_output = os.path.join(save_dir, f"merged_model_epoch-{max_epochs}_{quant_type}.gguf")
+        quant_output = os.path.join(save_dir, f"merged_model_epoch-{max_epochs}_(steps-{steps_per_epoch*max_epochs})_{quant_type}.gguf")
         
         print(f"🚀 Quantizing GGUF model to: {quant_output} using {quant_type}")
         subprocess.run([
