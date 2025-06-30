@@ -62,7 +62,7 @@ dataset = dataset.map(formatting_prompts_func, batched=True)
 # Fine-tune params
 # ============================
 learn_rate = 5e-5
-max_epochs = 20
+max_epochs = 10
 warmup_steps = 5
 per_device_train_batch_size = 2
 gradient_accumulation_steps = 4
@@ -86,6 +86,7 @@ trainer = SFTTrainer(
     max_seq_length = max_seq_length,
     dataset_num_proc = 2,
     packing = False,
+
     args = SFTConfig(
         per_device_train_batch_size = per_device_train_batch_size,
         gradient_accumulation_steps = gradient_accumulation_steps,
@@ -94,6 +95,7 @@ trainer = SFTTrainer(
         learning_rate = learn_rate,        
         optim = "adamw_8bit",
         weight_decay = 0.01,
+        save_steps = 1000,
         lr_scheduler_type = "linear",
         seed = 3407,
         output_dir = output_dir,
@@ -104,6 +106,13 @@ trainer = SFTTrainer(
 )
 
 trainer.train()
+
+# to resume from the laste checkpoint saved, use:
+# trainer.train(resume_from_checkpoint=True)
+
+# to resume from a specific checkpoint, use:
+# trainer.train(resume_from_checkpoint="outputs/checkpoint-1500")
+
 
 # === Save merged model ===
 save_dir = "merged_model"
